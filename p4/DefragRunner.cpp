@@ -75,7 +75,13 @@ void DiskDrive::check()
     cout << "Discontinuous disk storage.  Disk block: " << i
       << " is used after " << i - 1 << " was unused.\n";
 } // check()
-
+/*
+void DiskDrive::print() {
+    for(unsigned i = 0; i < capacity; i++) {
+        cout << i << "" << disk[i].fileID << "" << disk[i].fileBlockNum << "" << disk[i].nextBlockID << "\n";
+    }
+}
+*/
 int main(int argc, char *argv[])
 {
   DiskDrive diskDrive;
@@ -87,7 +93,6 @@ int main(int argc, char *argv[])
   cout << "CPU Time: " << ct.cur_CPUTime() << " Disk accesses: "
     << diskDrive.getDiskAccesses() << " RAM: " << maxRAM << endl;
   diskDrive.check();
+ // diskDrive.print();
   return 0;
 }  // main
-
-

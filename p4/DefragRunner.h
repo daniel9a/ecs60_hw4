@@ -78,7 +78,8 @@ public:
     disk[diskBlockID] = diskBlock->blockInfo;
     diskAccesses++;
   }  // copies diskBlockInfo
-  void check();    
+  void check();
+//  void print();
 } ;  // DiskDrive class
 
 
