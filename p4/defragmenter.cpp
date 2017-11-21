@@ -30,16 +30,13 @@ Defragmenter::Defragmenter(DiskDrive *diskDrive) {
         }
     }
     unsigned minimum = (diskDrive->getCapacity() + cap) / 2;
-
     unsigned index = 2;
     DiskBlock* head = NULL;
     DiskBlock* move = NULL;
-
     unsigned currentLocation = 0;
     int numFile = diskDrive->getNumFiles();
     for (int i = 0; i < numFile ; i++) {
         unsigned blockID = diskDrive->directory[i].getFirstBlockID();
-
         if (blockID == diskDrive->directory[i].getFirstBlockID()) { // first
             diskDrive->directory[i].setFirstBlockID(index); //first file starts on disk block #2
         }
