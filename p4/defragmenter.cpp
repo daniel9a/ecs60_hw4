@@ -1,24 +1,23 @@
-#include <iostream>
+//#include <iostream>
 #include "defragmenter.h"
 #include "mynew.h"
 #include "DefragRunner.h"
 #include "QuadraticProbing.h"
 #include "BinaryHeap.h"
-using namespace std;
+//using namespace std;
 
 
 Defragmenter::Defragmenter(DiskDrive *diskDrive) {
 
-    DiskBlock *notfound = NULL;
-    int size = 200000; //size of hash table
-    QuadraticHashTable<DiskBlock*>* table;
-    table = new QuadraticHashTable<DiskBlock*>(notfound, size);
+    DiskBlock *nf = NULL;
+    QuadraticHashTable<DiskBlock*>* table = new QuadraticHashTable<DiskBlock*>(nf, 6000);
+//    table = new QuadraticHashTable<DiskBlock*>(nf, 6000);
     QuadraticHashTable<unsigned>* hashIndex;
-    hashIndex = new QuadraticHashTable<unsigned>(-1, 200000);
+    hashIndex = new QuadraticHashTable<unsigned>(-1, 20000);
 
     unsigned empty = 200000;
-    BinaryHeap <int>* heap;
-    heap = new BinaryHeap <int> (empty + 1);
+    BinaryHeap <int>* heap = new BinaryHeap <int> (empty + 1);
+//    heap = new BinaryHeap <int> (empty + 1);
 
     unsigned count = 0;
     unsigned cap = diskDrive->getCapacity() - 1;
@@ -43,6 +42,27 @@ Defragmenter::Defragmenter(DiskDrive *diskDrive) {
         while (blockID != 1) {
             if (blockID < index) { // read from table
                 head = table->find(blockID); //return item that matches blockID
+                if(!head) {
+                    currentLocation = hashIndex->find(blockID);
+                    unsigned x = -1;
+                    while (hashIndex->find(currentLocation) != x) {
+                        hashIndex->remove(blockID);
+                        blockID = currentLocation;
+                        currentLocation = hashIndex->find(blockID);
+                    }
+                    head = diskDrive->readDiskBlock(currentLocation);
+                    if (currentLocation != index) { //current Position does not equal index
+                        diskDrive->FAT[currentLocation] = false; //empty
+                        if (currentLocation > minimum && heap->getSize() < empty) { //extra empty values
+                            heap->insert(-currentLocation);
+                        }
+                    }
+                    hashIndex->remove(blockID);
+                }
+                else {
+                    table->remove(blockID); //removes blockID
+                }
+                /*
                 if (head) {
                     table->remove(blockID); //removes blockID
                 }
@@ -62,7 +82,7 @@ Defragmenter::Defragmenter(DiskDrive *diskDrive) {
                         }
                     }
                     hashIndex->remove(blockID);
-                }
+                }*/
             }
             else { // read from disk
                 head = diskDrive->readDiskBlock(blockID);
@@ -79,8 +99,8 @@ Defragmenter::Defragmenter(DiskDrive *diskDrive) {
                     if (table->needRehash()) {
                         cap = -heap->findMin();
                         heap->deleteMin();
-                        diskDrive->writeDiskBlock(move, cap);
-                        hashIndex->insert(index, cap);
+                        diskDrive->writeDiskBlock(move,cap);
+                        hashIndex->insert(index,cap);
                         diskDrive->FAT[cap] = true;
                         delete move;
                     }
